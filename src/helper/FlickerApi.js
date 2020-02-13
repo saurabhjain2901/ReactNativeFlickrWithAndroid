@@ -16,8 +16,8 @@ export function searchPhotos(keyword) {
                           + '&format=json&extras=url_m,description&per_page=500&text=' 
                           + keyword + '&nojsoncallback=1&safe_search=3&radius=32'
 
-  const photosSearchURL = photosSearchURL1;
-  // const photosSearchURL = photosSearchURL2;
+  // const photosSearchURL = photosSearchURL1;
+  const photosSearchURL = photosSearchURL2;
 
 
   return fetch(photosSearchURL)

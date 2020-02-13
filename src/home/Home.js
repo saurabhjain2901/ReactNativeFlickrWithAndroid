@@ -1,10 +1,11 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable jsx-quotes */
 /* eslint-disable no-trailing-spaces */
 /* eslint-disable comma-dangle */
 /* eslint-disable semi */
 /* eslint-disable prettier/prettier */
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, TextInput, TouchableHighlight, FlatList} from 'react-native';
+import {View, Text, StyleSheet, TextInput, TouchableHighlight, FlatList, ActivityIndicator} from 'react-native';
 import { searchPhotos } from '../helper/FlickerApi'
 import PhotoCard from './PhotoCard'
 
@@ -15,19 +16,22 @@ constructor(){
     super()
     this.state = {
         photos: [],
-        searchText: ''
+        searchText: '',
+        isLoading: false
     };
 
 }
 
 search = (keyword) => {
+    this.setState({ isLoading: true })
     searchPhotos(keyword)
     .then(results => {
         console.log('there are ' + results.length + ' photos')
         //console.log(results)
 
         this.setState({
-            photos: results
+            photos: results,
+            isLoading: false
         })
     })
 }
@@ -39,40 +43,51 @@ searchButtonPressed = () => {
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          placeholder='enter your search'
-          clearButtonMode='while-editing'
-          textAlign={'center'}
-          autoCapitalize='none'
-          autoCorrect={false}
-          onChangeText={(text) => this.setState({
-                                    text: text
-                                  })}
-        />
-        <FlatList
-          data={this.state.photos}
-          renderItem={({item}) => <PhotoCard
-                                    imageURL={item.url_m}
-                                    title={item.title}
-                                    description={item.description._content}
-                                  />}
-          keyExtractor={item => item.id}
-          //ref={'listRef'}
-        />
-        <TouchableHighlight
-          style={styles.button}
-          underlayColor='white'
-          onPress={() => this.searchButtonPressed()}
-        >
-          <View>
-            <Text style={styles.buttonText}>Search</Text>
+    if (this.state.isLoading) {
+        return (
+          <View style = {{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <ActivityIndicator size = "large"/>
           </View>
-        </TouchableHighlight>
-      </View>
-    );
+        )
+    } else {
+        return (
+        <View style={styles.container}>
+            <TextInput
+            style={styles.input}
+            placeholder='Search'
+            clearButtonMode='while-editing'
+            textAlign={'center'}
+            autoCapitalize='none'
+            autoCorrect={false}
+            onChangeText={(text) => this.setState({
+                                        text: text
+                                    })}
+            />
+            <FlatList
+            data={this.state.photos}
+            numColumns = {1}
+            contentContainerStyle={{alignItems: 'stretch'}}
+            renderItem={({item}) => <PhotoCard
+                                        style = {{ margin: 20 }}
+                                        imageURL={item.url_m}
+                                        title={item.title}
+                                        description={item.description._content}
+                                    />}
+            keyExtractor={item => item.id}
+            //ref={'listRef'}
+            />
+            <TouchableHighlight
+            style={styles.button}
+            underlayColor='white'
+            onPress={() => this.searchButtonPressed()}
+            >
+            <View>
+                <Text style={styles.buttonText}>Search</Text>
+            </View>
+            </TouchableHighlight>
+        </View>
+        );
+    }
   }
 }
 

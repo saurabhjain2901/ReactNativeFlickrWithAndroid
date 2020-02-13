@@ -23,7 +23,7 @@ class PhotoCard extends Component {
 
   render() {
     return(
-      <TouchableHighlight>
+    //   <TouchableHighlight>
         <View styles = { styles.container }>
           <Image
             style={styles.image}
@@ -32,14 +32,15 @@ class PhotoCard extends Component {
           <Text style={styles.title}>{this.props.title}</Text>
           {/* <Text style={styles.description}>{this.props.description}</Text> */}
         </View>
-      </TouchableHighlight>
+    //   </TouchableHighlight>
     )
   }
 }
 
 const styles = StyleSheet.create({
     container:{
-        margin: 20
+        margin: 20,
+        padding: 30
     },
     image: {
         height: 150, 
