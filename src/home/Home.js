@@ -1,3 +1,4 @@
+/* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable jsx-quotes */
 /* eslint-disable no-trailing-spaces */
@@ -5,7 +6,7 @@
 /* eslint-disable semi */
 /* eslint-disable prettier/prettier */
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, TextInput, TouchableHighlight, FlatList, ActivityIndicator} from 'react-native';
+import {View, Text, StyleSheet, TextInput, TouchableHighlight, FlatList, ActivityIndicator, TouchableOpacity} from 'react-native';
 import { searchPhotos } from '../helper/FlickerApi'
 import PhotoCard from './PhotoCard'
 
@@ -17,7 +18,8 @@ constructor(){
     this.state = {
         photos: [],
         searchText: '',
-        isLoading: false
+        isLoading: false,
+        listType : ''
     };
 
 }
@@ -31,16 +33,22 @@ search = (keyword) => {
 
         this.setState({
             photos: results,
-            isLoading: false
+            isLoading: false,
+            listType: 'list'
         })
     })
 }
-
  
 searchButtonPressed = () => {
     this.search(this.state.text)
     //this.refs.listRef.scrollToOffset({x:0, y:0, animated:true})
-  }
+}
+
+onChangeListType = () => {
+  (this.state.listType === 'list')
+  ? this.setState({ listType: 'grid' })
+  : this.setState({ listType: 'list' })
+}
 
   render() {
     if (this.state.isLoading) {
@@ -52,38 +60,73 @@ searchButtonPressed = () => {
     } else {
         return (
         <View style={styles.container}>
-            <TextInput
-            style={styles.input}
-            placeholder='Search'
-            clearButtonMode='while-editing'
-            textAlign={'center'}
-            autoCapitalize='none'
-            autoCorrect={false}
-            onChangeText={(text) => this.setState({
-                                        text: text
-                                    })}
-            />
-            <FlatList
-            data={this.state.photos}
-            numColumns = {1}
-            contentContainerStyle={{alignItems: 'stretch'}}
-            renderItem={({item}) => <PhotoCard
-                                        style = {{ margin: 20 }}
-                                        imageURL={item.url_m}
-                                        title={item.title}
-                                        description={item.description._content}
-                                    />}
-            keyExtractor={item => item.id}
-            //ref={'listRef'}
-            />
-            <TouchableHighlight
-            style={styles.button}
-            underlayColor='white'
-            onPress={() => this.searchButtonPressed()}
-            >
-            <View>
-                <Text style={styles.buttonText}>Search</Text>
+            <View style = {{ height: 50, flexDirection: 'row', backgroundColor: 'white' }}>
+              <View style = {{ flex: 5 }}>
+                  <TextInput
+                  style={styles.input}
+                  placeholder='Search'
+                  clearButtonMode='while-editing'
+                  textAlign={'center'}
+                  autoCapitalize='none'
+                  autoCorrect={false}
+                  onChangeText={(text) => this.setState({ text: text })}
+                />
+              </View>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style = {{ flex: 1 , justifyContent: 'center', backgroundColor: '#ebebeb',}}
+                  onPress={() => this.onChangeListType()}>
+                      {
+                        (this.state.listType === 'list') 
+                        ? <Text style = {{ fontSize: 18, textAlign: 'center' }}>Grid</Text>
+                        : <Text style = {{ fontSize: 18, textAlign: 'center' }}>List</Text>
+                      }
+                </TouchableOpacity>
             </View>
+          
+            {
+              (this.state.listType === 'grid')
+              ? 
+                  <FlatList
+                  data={this.state.photos}
+                  numColumns = { 2 }
+                  key = {this.state.listType === 'grid' ? 2 : 1}
+                  contentContainerStyle={{alignItems: 'stretch'}}
+                  keyExtractor={item => item.id}
+                  renderItem={({item}) => <PhotoCard
+                                            listType = { this.state.listType }
+                                            style = {{ margin: 20 }}
+                                            imageURL={item.url_m}
+                                            title={item.title}
+                                            description={item.description._content}
+                                        />}
+                  />
+              :
+
+                  <FlatList
+                  data={this.state.photos}
+                  numColumns = { 1 }
+                  key = {this.state.listType === 'grid' ? 2 : 1}
+                  contentContainerStyle={{alignItems: 'stretch'}}
+                  keyExtractor={item => item.id}
+                  renderItem={({item}) => <PhotoCard
+                                            listType = { this.state.listType }
+                                            style = {{ margin: 20 }}
+                                            imageURL={item.url_m}
+                                            title={item.title}
+                                            description={item.description._content}
+                                        />}
+                />
+            }
+            
+            <TouchableHighlight
+              style={styles.button}
+              underlayColor='white'
+              onPress={() => this.searchButtonPressed()}>
+                <View>
+                    <Text style={styles.buttonText}>Search</Text>
+                </View>
             </TouchableHighlight>
         </View>
         );
@@ -102,7 +145,6 @@ const styles = StyleSheet.create({
   }, 
   input: {
     backgroundColor: 'white',
-    height: 64, 
     fontSize: 20, 
   }, 
   button: {
